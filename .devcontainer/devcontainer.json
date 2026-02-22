@@ -3,7 +3,6 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -38,23 +37,52 @@
       }
     }
   },
-
-  "forwardPorts": [8000, 8001, 8002, 5432, 6379, 9092, 8080, 8081, 9090],
+  "forwardPorts": [
+    8000,
+    8001,
+    8002,
+    5432,
+    6379,
+    9092,
+    8080,
+    8081,
+    9090
+  ],
   "portsAttributes": {
-    "8000": { "label": "Ingestion API",   "onAutoForward": "notify" },
-    "8001": { "label": "Worker Metrics"                             },
-    "8002": { "label": "Query Service",   "onAutoForward": "notify" },
-    "5432": { "label": "TimescaleDB"                                },
-    "6379": { "label": "Redis"                                      },
-    "9092": { "label": "Kafka"                                      },
-    "8080": { "label": "Kafka UI",        "onAutoForward": "notify" },
-    "8081": { "label": "Schema Registry"                            },
-    "9090": { "label": "Prometheus",      "onAutoForward": "notify" }
+    "8000": {
+      "label": "Ingestion API",
+      "onAutoForward": "notify"
+    },
+    "8001": {
+      "label": "Worker Metrics"
+    },
+    "8002": {
+      "label": "Query Service",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "TimescaleDB"
+    },
+    "6379": {
+      "label": "Redis"
+    },
+    "9092": {
+      "label": "Kafka"
+    },
+    "8080": {
+      "label": "Kafka UI",
+      "onAutoForward": "notify"
+    },
+    "8081": {
+      "label": "Schema Registry"
+    },
+    "9090": {
+      "label": "Prometheus",
+      "onAutoForward": "notify"
+    }
   },
-
-  "postCreateCommand": "bash scripts/post_create.sh",
+  "postCreateCommand": "bash scripts/post-create.sh",
   "remoteUser": "vscode",
-
   "features": {
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
       "enableNonRootDocker": "true",

@@ -1,74 +1,57 @@
-#!/bin/bash
-
-# This script runs after the devcontainer is created
+#!/usr/bin/env bash
+# scripts/post_create.sh
+# Runs once after the devcontainer is created.
+# Idempotent: safe to run multiple times.
 set -euo pipefail
-echo "Setting up development environment..."
-
-# Verify Python installation
-echo "Python version:"
-python --version
-
-# Verify uv installation
-echo "uv version:"
-uv --version
-
-# Verify database connection
-echo "Waiting for PostgreSQL to be ready..."
-until pg_isready -h localhost -p 5432 -U analytics; do
-  echo "Waiting for postgres..."
-  sleep 2
-done
-echo "PostgreSQL is ready!"
-
-# Verify Redis connection
-echo "Checking Redis..."
-until redis-cli ping; do
-  echo "Waiting for Redis..."
-  sleep 2
-done
-echo "Redis is ready!"
-
-# Verify Kafka connection
-echo "Checking Kafka..."
-until python -c "import socket; s = socket.socket(); s.settimeout(1); s.connect(('localhost', 9092))" > /dev/null 2>&1; do
-  echo "Waiting for Kafka at localhost:9092..."
-  sleep 2
-done
-echo "Kafka is ready!"
-
-# Verify Kafka UI connection
-echo "Checking Kafka UI..."
-until curl -s http://localhost:8080; do
-  echo "Waiting for Kafka UI at http://localhost:8080..."
-  sleep 2
-done
-echo "Kafka UI is ready!"
-
-# Verify AVRO schema registry connection
-echo "Checking Schema Registry..."
-until curl -s http://localhost:8081; do
-  echo "Waiting for Schema Registry at http://localhost:8081..."
-  sleep 2
-done
-echo
-echo "Schema Registry is ready!"
-
-# Create Kafka topics
-KAFKA_CONTAINER="realtime-analytics-platform_devcontainer-kafka-1"
-KAFKA="docker exec -it $KAFKA_CONTAINER /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092"
-
-echo "Creating Kafka topics..."
-
-$KAFKA --create --if-not-exists --topic metrics_ingestion --partitions 3 --replication-factor 1
-echo "✅ metrics_ingestion"
-
-$KAFKA --create --if-not-exists --topic metrics_dlq --partitions 1 --replication-factor 1
-echo "✅ metrics_dlq"
 
 echo ""
-echo "All topics:"
-$KAFKA --list
+echo "════════════════════════════════════════════════"
+echo "  Post-create setup"
+echo "════════════════════════════════════════════════"
 
+# ── Git config ────────────────────────────────────────────────────────────────
 echo ""
-echo "DevContainer setup complete!"
+echo "▶ Configuring git..."
+bash scripts/git_config.sh
+
+# ── Install service dependencies ──────────────────────────────────────────────
+echo ""
+echo "▶ Installing Python dependencies..."
+for svc in shared ingestion worker query_service; do
+  if [ -f "services/$svc/pyproject.toml" ]; then
+    echo "  Installing $svc..."
+    cd "services/$svc" && uv sync --quiet && cd ../..
+  fi
+done
+
+# ── Wait for Kafka and create topics ──────────────────────────────────────────
+echo ""
+echo "▶ Waiting for Kafka..."
+RETRIES=30
+until /opt/kafka/bin/kafka-topics.sh \
+        --bootstrap-server localhost:9092 --list > /dev/null 2>&1; do
+  RETRIES=$((RETRIES - 1))
+  if [ $RETRIES -eq 0 ]; then
+    echo "  ⚠️  Kafka not ready — run 'make kafka-topics' manually once it starts"
+    break
+  fi
+  echo "  Waiting... ($RETRIES retries left)"
+  sleep 3
+done
+
+if [ $RETRIES -gt 0 ]; then
+  bash scripts/kafka_init.sh
+fi
+
+# ── Done ──────────────────────────────────────────────────────────────────────
+echo ""
+echo "════════════════════════════════════════════════"
+echo "  ✅ Ready. Quick reference:"
+echo ""
+echo "  make up           Start infrastructure"
+echo "  make migrate      Run DB migrations"
+echo "  make kafka-topics Create Kafka topics"
+echo "  make test         Run all tests"
+echo "  make help         Show all commands"
+echo "════════════════════════════════════════════════"
 echo ""
