@@ -1,0 +1,168 @@
+# Network architecture note
+
+# All services use `network_mode: service:db`. This means every container shares
+# the same network namespace as the `db` container — they all see each other as
+# `localhost`. This is intentional: it mirrors a production VM or bare-metal setup
+# where everything talks over loopback.
+
+# Consequence: ALL port mappings must live on the `db` service. If you add a new
+# service and wonder why its port isn't reachable from your host, this is why.
+# Add the port to the `db` ports list.
+
+# This file is for LOCAL DEVELOPMENT ONLY. Production uses individual Dockerfiles
+# orchestrated by Kubernetes / ECS.
+
+services:
+
+  # devcontainer
+  # The VS Code devcontainer. Your code runs here.
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    network_mode: service:db
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://analytics:analytics@localhost:5432/analytics
+      - REDIS_URL=redis://localhost:6379/0
+      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+      - SCHEMA_REGISTRY_URL=http://localhost:8081
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  # ── TimescaleDB ───────────────────────────────────────────────────────────────
+  # Named `db` because it owns the network namespace (all ports declared here).
+  # Image: standard postgres for now — swap to timescale/timescaledb:latest-pg16
+  # once you're ready to run the V3 hypertable migration.
+  db:
+    image: timescale/timescaledb:latest-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: analytics
+      POSTGRES_PASSWORD: analytics
+      POSTGRES_DB: analytics
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U analytics -d analytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # ALL port mappings live here because everything uses network_mode: service:db
+    ports:
+      - "5432:5432"   # TimescaleDB / Postgres
+      - "6379:6379"   # Redis
+      - "9092:9092"   # Kafka
+      - "8081:8081"   # Schema Registry
+      - "8080:8080"   # Kafka UI
+      - "9090:9090"   # Prometheus
+      - "8000:8000"   # Ingestion Service
+      - "8001:8001"   # Worker (Prometheus metrics)
+      - "8002:8002"   # Query Service
+
+  # ── Redis ─────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    network_mode: service:db
+    volumes:
+      - redis_data:/data
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ── Kafka (KRaft — no Zookeeper) ──────────────────────────────────────────────
+  kafka:
+    image: apache/kafka:latest
+    restart: unless-stopped
+    network_mode: service:db
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # ── Schema Registry ───────────────────────────────────────────────────────────
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.0
+    restart: unless-stopped
+    network_mode: service:db
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://localhost:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/subjects"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
+  # ── Kafka UI ──────────────────────────────────────────────────────────────────
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    restart: unless-stopped
+    network_mode: service:db
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: localhost:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://localhost:8081
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+
+  # ── Prometheus ────────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    network_mode: service:db
+    volumes:
+      - ../infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+
+volumes:
+  postgres_data:
+  redis_data:
+  kafka_data:
+  prometheus_data:
