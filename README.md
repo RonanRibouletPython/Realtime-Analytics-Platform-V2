@@ -1,5 +1,5 @@
 # Realtime-Analytics-Platform-V2
-New folder structure for existing project
+New folder structure for existing project (its visibility changed)
 
 # Real-Time Analytics & Monitoring Platform
 
@@ -13,7 +13,7 @@ graph TD
     
     subgraph "Ingestion Layer"
         Gateway -->|REST v1| Ingest[Ingestion Service]
-        Ingest -->|Produce| Kafka[Kafka / Redpanda]
+        Ingest -->|Produce| Kafka[Kafka]
     end
 
     subgraph "Processing Layer"
@@ -33,10 +33,10 @@ graph TD
 - **Language:** Python 3.12+ (managed by `uv`)
 - **API Framework:** FastAPI (Async)
 - **Database:** PostgreSQL + TimescaleDB extension
-- **Broker:** Apache Kafka (or Redpanda for dev) + Schema Registry
+- **Broker:** Apache Kafka + Schema Registry (AVRO)
 - **Caching:** Redis
 - **Orchestration:** Docker Compose
-- **Observability:** Prometheus, Grafana, OpenTelemetry
+- **Observability:** Prometheus (only for now), Grafana, OpenTelemetry
 
 ## Roadmap & Progress
 
@@ -75,4 +75,5 @@ graph TD
 - [ ] Grafana Dashboards
 - [ ] OpenTelemetry Tracing
 - [ ] Load testing (Locust)
+
 
