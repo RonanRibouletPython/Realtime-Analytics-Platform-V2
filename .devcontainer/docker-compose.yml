@@ -37,10 +37,10 @@ services:
       kafka:
         condition: service_healthy
 
-  # ── TimescaleDB ───────────────────────────────────────────────────────────────
+  # TimescaleDB
   # Named `db` because it owns the network namespace (all ports declared here).
   # Image: standard postgres for now — swap to timescale/timescaledb:latest-pg16
-  # once you're ready to run the V3 hypertable migration.
+  # once we're ready to run the V3 hypertable migration.
   db:
     image: timescale/timescaledb:latest-pg16
     restart: unless-stopped
@@ -68,7 +68,7 @@ services:
       - "8001:8001"   # Worker (Prometheus metrics)
       - "8002:8002"   # Query Service
 
-  # ── Redis ─────────────────────────────────────────────────────────────────────
+  # Redis
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -87,7 +87,7 @@ services:
       timeout: 3s
       retries: 5
 
-  # ── Kafka (KRaft — no Zookeeper) ──────────────────────────────────────────────
+  # Kafka (KRaft — no Zookeeper)
   kafka:
     image: apache/kafka:latest
     restart: unless-stopped
@@ -114,7 +114,7 @@ services:
       retries: 10
       start_period: 30s
 
-  # ── Schema Registry ───────────────────────────────────────────────────────────
+  # Schema Registry
   schema-registry:
     image: confluentinc/cp-schema-registry:7.6.0
     restart: unless-stopped
@@ -133,7 +133,7 @@ services:
       retries: 10
       start_period: 20s
 
-  # ── Kafka UI ──────────────────────────────────────────────────────────────────
+  # Kafka UI
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     restart: unless-stopped
@@ -148,7 +148,7 @@ services:
       schema-registry:
         condition: service_healthy
 
-  # ── Prometheus ────────────────────────────────────────────────────────────────
+  # Prometheus
   prometheus:
     image: prom/prometheus:latest
     restart: unless-stopped
@@ -165,4 +165,5 @@ volumes:
   postgres_data:
   redis_data:
   kafka_data:
+
   prometheus_data:
