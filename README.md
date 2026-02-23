@@ -1,8 +1,6 @@
 # Realtime-Analytics-Platform-V2
 New folder structure for existing project (its visibility changed)
 
-# Real-Time Analytics & Monitoring Platform
-
 A high-performance, multi-tenant analytics platform capable of ingesting, processing, and serving real-time metrics. This project demonstrates distributed system patterns, event-driven architecture, and time-series data management.
 
 ## Architecture
@@ -75,5 +73,6 @@ graph TD
 - [ ] Grafana Dashboards
 - [ ] OpenTelemetry Tracing
 - [ ] Load testing (Locust)
+
 
 
