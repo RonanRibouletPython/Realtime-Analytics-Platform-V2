@@ -3,22 +3,24 @@ from contextlib import asynccontextmanager
 import redis.asyncio as redis
 import structlog
 import uvicorn
+from fastapi import Depends, FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.api.metrics import router as metrics_router
 from app.core.database import Base, engine, get_db
 from app.core.kafka_producer import check_kafka_health, flush_producer
 from app.core.logging import setup_logging
 from app.core.redis_client import check_redis_health, get_redis
 from app.core.settings import settings
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = structlog.get_logger()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # ── Startup ───────────────────────────────────────────────────────────────
+    # Startup
     setup_logging()
     logger.info("ingestion_service_starting", env=settings.ENV)
 
@@ -28,10 +30,10 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # ── Shutdown ──────────────────────────────────────────────────────────────
+    # Shutdown
     logger.info("ingestion_service_stopping")
-    flush_producer()  # drain Kafka buffer before exit
-    await engine.dispose()  # return DB connections to pool
+    flush_producer()
+    await engine.dispose()
 
 
 app = FastAPI(
@@ -41,17 +43,21 @@ app = FastAPI(
     docs_url=f"/{settings.API_V1_PREFIX}/docs",
 )
 
+# Prometheus
+# Mounts GET /metrics on the FastAPI app.
+# Automatically tracks: request count, latency histograms, status codes — per endpoint.
+# Prometheus scrapes port 8000 (same as the API) — no second port needed.
+Instrumentator().instrument(app).expose(app)
+
 app.include_router(metrics_router, prefix=f"/{settings.API_V1_PREFIX}")
 
 
-# ── Health endpoints ──────────────────────────────────────────────────────────
-# Each component gets its own endpoint so k8s / load balancers can probe
-# individual dependencies without getting a false-positive from a combined check.
+# Health endpoints
 
 
 @app.get("/health", tags=["health"])
 async def health():
-    """Basic liveness probe — is the process alive?"""
+    """Liveness probe — is the process alive?"""
     return {"status": "healthy", "service": "ingestion", "env": settings.ENV}
 
 
@@ -64,7 +70,8 @@ async def health_db(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.error("health_db_failed", error=str(e))
         raise HTTPException(
-            status_code=503, detail={"status": "unhealthy", "component": "database"}
+            status_code=503,
+            detail={"status": "unhealthy", "component": "database"},
         )
 
 
@@ -77,7 +84,8 @@ async def health_redis(redis_client: redis.Redis = Depends(get_redis)):
     except Exception as e:
         logger.error("health_redis_failed", error=str(e))
         raise HTTPException(
-            status_code=503, detail={"status": "unhealthy", "component": "redis"}
+            status_code=503,
+            detail={"status": "unhealthy", "component": "redis"},
         )
 
 
@@ -90,7 +98,8 @@ async def health_kafka():
     except Exception as e:
         logger.error("health_kafka_failed", error=str(e))
         raise HTTPException(
-            status_code=503, detail={"status": "unhealthy", "component": "kafka"}
+            status_code=503,
+            detail={"status": "unhealthy", "component": "kafka"},
         )
 
 

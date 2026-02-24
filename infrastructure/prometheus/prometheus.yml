@@ -1,20 +1,23 @@
-# infrastructure/prometheus/prometheus.yml
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
 scrape_configs:
-
+  # Ingestion: metrics served directly by FastAPI via prometheus-fastapi-instrumentator
+  # Automatically includes HTTP request count, latency, status codes per endpoint.
   - job_name: ingestion
     static_configs:
       - targets: ["localhost:8000"]
     metrics_path: /metrics
 
+  # Worker: metrics served by prometheus_client's start_http_server() on port 8001
+  # Includes: messages processed, DLQ count, processing latency histograms.
   - job_name: worker
     static_configs:
       - targets: ["localhost:8001"]
     metrics_path: /metrics
 
+  # Query service (Phase 3) — port 8002
   - job_name: query_service
     static_configs:
       - targets: ["localhost:8002"]
