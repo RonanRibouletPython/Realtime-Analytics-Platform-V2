@@ -19,7 +19,7 @@ from app.core.settings import settings
 logger = structlog.get_logger()
 
 
-# ── Schema version enum ───────────────────────────────────────────────────────
+# Schema version enum
 # Callers import SchemaVersion and pass it to produce_metric().
 # Enum prevents silent typos like "V 2" or "v 2" from falling through.
 class SchemaVersion(str, Enum):
@@ -86,7 +86,7 @@ _producer = SerializingProducer(
 )
 
 
-# ── Callbacks ─────────────────────────────────────────────────────────────────
+# Callbacks
 def _on_delivery(err, msg) -> None:
     if err:
         logger.error("kafka_delivery_failed", error=str(err), topic=msg.topic())
@@ -99,7 +99,7 @@ def _on_delivery(err, msg) -> None:
         )
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# Public API
 async def produce_metric(
     metric: dict,
     version: SchemaVersion = SchemaVersion.V3,

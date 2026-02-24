@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-CONTAINER_NAME="realtime-analytics-platform_devcontainer-db-1"
+CONTAINER_NAME="realtime-analytics-platform-v2_devcontainer-db-1"
 DB_USER="analytics"
 DB_NAME="analytics"
 

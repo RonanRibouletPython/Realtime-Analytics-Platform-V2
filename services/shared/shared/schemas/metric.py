@@ -26,7 +26,7 @@ class MetricBase(BaseModel):
         from_attributes=True,
         json_schema_extra={
             "example": {
-                "tenant_id": "acme-corp",
+                "tenant_id": "kcorp",
                 "name": "cpu_usage",
                 "value": 75.32,
                 "environment": "production",
