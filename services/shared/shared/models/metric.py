@@ -32,7 +32,7 @@ class Metric(Base):
 
     __tablename__ = "metrics"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, autoincrement=True, index=True)
     tenant_id = Column(String(64), nullable=False, default="default", index=True)
     name = Column(String, nullable=False, index=True)
     value = Column(Float, nullable=False)
