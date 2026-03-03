@@ -1,6 +1,6 @@
 import asyncio
 import time
-from datetime import timezone as tz
+from datetime import UTC
 from enum import Enum
 from pathlib import Path
 
@@ -24,7 +24,7 @@ logger = structlog.get_logger()
 # Enum prevents silent typos like "V 2" or "v 2" from falling through.
 class SchemaVersion(str, Enum):
     V1 = "v1"
-    V2 = "v2"
+    V2 = "v2"  # added environment
     V3 = "v3"  # current default — includes tenant_id
 
 
@@ -57,7 +57,7 @@ def _metric_to_avro(metric: dict, ctx) -> dict:
     return {
         "name": metric["name"],
         "value": metric["value"],
-        "timestamp": int(timestamp.astimezone(tz.utc).timestamp() * 1000),
+        "timestamp": int(timestamp.astimezone(UTC).timestamp() * 1000),
         "labels": metric.get("labels", {}),
         "environment": metric.get("environment"),
         "tenant_id": metric.get("tenant_id", "default"),

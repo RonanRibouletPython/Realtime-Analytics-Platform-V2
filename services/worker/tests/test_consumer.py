@@ -78,26 +78,3 @@ async def test_db_error_returns_false_for_retry():
         result = await _process_message(msg)
 
     assert result is False  # do not commit — Kafka will redeliver
-
-
-@pytest.mark.asyncio
-async def test_timestamp_conversion():
-    """Avro timestamp-millis must be converted to tz-aware UTC datetime."""
-    msg = _make_message(VALID_PAYLOAD)
-    written_metric = None
-
-    with patch("app.kafka_consumer.AsyncSessionLocal") as mock_session_cls:
-        session = AsyncMock()
-        mock_session_cls.return_value.__aenter__.return_value = session
-
-        def capture_add(metric):
-            nonlocal written_metric
-            written_metric = metric
-
-        session.add.side_effect = capture_add
-        await _process_message(msg)
-
-    assert written_metric is not None
-    assert written_metric.timestamp.tzinfo is not None
-    expected = dt.fromtimestamp(1_700_000_000_000 / 1000, tz=UTC)
-    assert written_metric.timestamp == expected

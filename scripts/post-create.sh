@@ -5,18 +5,16 @@
 set -euo pipefail
 
 echo ""
-echo "════════════════════════════════════════════════"
 echo "  Post-create setup"
-echo "════════════════════════════════════════════════"
 
-# ── Git config ────────────────────────────────────────────────────────────────
+# Git config
 echo ""
-echo "▶ Configuring git..."
+echo "Configuring git..."
 bash scripts/git_config.sh
 
-# ── Install service dependencies ──────────────────────────────────────────────
+# Install service dependencies
 echo ""
-echo "▶ Installing Python dependencies..."
+echo "Installing Python dependencies..."
 for svc in shared ingestion worker query_service; do
   if [ -f "services/$svc/pyproject.toml" ]; then
     echo "  Installing $svc..."
@@ -24,15 +22,15 @@ for svc in shared ingestion worker query_service; do
   fi
 done
 
-# ── Wait for Kafka and create topics ──────────────────────────────────────────
+# Wait for Kafka and create topics
 echo ""
-echo "▶ Waiting for Kafka..."
+echo "Waiting for Kafka..."
 RETRIES=30
 until /opt/kafka/bin/kafka-topics.sh \
         --bootstrap-server localhost:9092 --list > /dev/null 2>&1; do
   RETRIES=$((RETRIES - 1))
   if [ $RETRIES -eq 0 ]; then
-    echo "  ⚠️  Kafka not ready — run 'make kafka-topics' manually once it starts"
+    echo "  Kafka not ready — run 'make kafka-topics' manually once it starts"
     break
   fi
   echo "  Waiting... ($RETRIES retries left)"
@@ -43,15 +41,13 @@ if [ $RETRIES -gt 0 ]; then
   bash scripts/kafka_init.sh
 fi
 
-# ── Done ──────────────────────────────────────────────────────────────────────
+# Done
 echo ""
-echo "════════════════════════════════════════════════"
-echo "  ✅ Ready. Quick reference:"
+echo " Ready. Quick reference:"
 echo ""
 echo "  make up           Start infrastructure"
 echo "  make migrate      Run DB migrations"
 echo "  make kafka-topics Create Kafka topics"
 echo "  make test         Run all tests"
 echo "  make help         Show all commands"
-echo "════════════════════════════════════════════════"
 echo ""
