@@ -229,7 +229,7 @@ class LoadGenerator:
             request_duration = time.time() - request_start
             self.stats.total_duration += request_duration
 
-            if response.status_code == 200:
+            if response.status_code == 202:
                 self.stats.total_success += 1
                 return True
             else:
