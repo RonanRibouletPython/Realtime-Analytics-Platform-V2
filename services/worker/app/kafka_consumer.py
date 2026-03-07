@@ -19,7 +19,7 @@ from app.core.settings import settings
 
 logger = structlog.get_logger()
 
-# ── Avro deserialiser ─────────────────────────────────────────────────────────
+# Avro deserialiser
 _schema_registry = SchemaRegistryClient({"url": settings.SCHEMA_REGISTRY_URL})
 
 _avro_dir = Path(__file__).parent.parent.parent / "shared" / "shared" / "avro"
@@ -30,7 +30,7 @@ avro_deserializer = AvroDeserializer(
     schema_str=_reader_schema,
 )
 
-# ── Consumer ──────────────────────────────────────────────────────────────────
+# Consumer
 consumer = DeserializingConsumer(
     {
         "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,

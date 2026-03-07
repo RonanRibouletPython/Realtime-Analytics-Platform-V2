@@ -53,8 +53,6 @@ app.include_router(metrics_router, prefix=f"/{settings.API_V1_PREFIX}")
 
 
 # Health endpoints
-
-
 @app.get("/health", tags=["health"])
 async def health():
     """Liveness probe — is the process alive?"""

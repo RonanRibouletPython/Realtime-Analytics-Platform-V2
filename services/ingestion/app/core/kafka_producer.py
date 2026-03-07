@@ -28,7 +28,7 @@ class SchemaVersion(str, Enum):
     V3 = "v3"  # current default — includes tenant_id
 
 
-# ── Avro setup ────────────────────────────────────────────────────────────────
+# Avro setup
 # Schemas live in shared/ — single source of truth.
 # Path is resolved relative to the installed shared package.
 _schema_registry = SchemaRegistryClient({"url": settings.SCHEMA_REGISTRY_URL})
