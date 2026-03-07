@@ -10,29 +10,29 @@ A distributed high-performance, multi-tenant analytics platform capable of inges
 ```mermaid
 graph TB
     subgraph clients["Client Layer"]
-        LG[Load Generator10 events/sec]
+        LG[Load Generator: 10 events/sec]
     end
     
     subgraph ingestion["Ingestion Layer"]
-        API[FastAPI Service:8000Validation + Serialization]
+        API[FastAPI Service: 8000Validation + Serialization]
     end
     
     subgraph messaging["Message Queue"]
-        KAFKA[Apache Kafka:9092metrics_ingestion topic]
-        SR[Schema Registry:8081]
+        KAFKA[Apache Kafka: 9092metrics_ingestion topic]
+        SR[Schema Registry: 8081]
     end
     
     subgraph processing["Processing Layer"]
-        WORKER[Worker Service:8001Async Consumer]
+        WORKER[Worker Service: 8001Async Consumer]
     end
     
     subgraph storage["Storage Layer"]
-        TS[(TimescaleDB:5432HypertablesContinuous AggregatesRetention Policies)]
-        REDIS[(Redis:6379Query Cache)]
+        TS[(TimescaleDB: 5432 Hypertables Continuous Aggregates Retention Policies)]
+        REDIS[(Redis: 6379Query Cache)]
     end
     
     subgraph monitoring["Monitoring Stack"]
-        PROM[Prometheus:9090]
+        PROM[Prometheus: 9090]
     end
 
     LG -->|HTTP POST /metrics| API
