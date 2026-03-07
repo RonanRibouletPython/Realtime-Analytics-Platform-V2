@@ -8,27 +8,49 @@ A distributed high-performance, multi-tenant analytics platform capable of inges
 ## Current Architecture
 
 ```mermaid
-graph TD
-    %% Define Nodes
-    LoadGen[Load Generator<br/>10 events/sec]
+graph TB
+    subgraph clients["Client Layer"]
+        LG[Load Generator10 events/sec]
+    end
     
-    API[FastAPI Ingestion Service<br/>Port 8000<br/>- Schema validation<br/>- Avro serialization]
+    subgraph ingestion["Ingestion Layer"]
+        API[FastAPI Service:8000Validation + Serialization]
+    end
     
-    Kafka[Apache Kafka + Schema Reg<br/>Ports 9092, 8081<br/>- Topic: metrics_ingestion<br/>- 3 partitions]
+    subgraph messaging["Message Queue"]
+        KAFKA[Apache Kafka:9092metrics_ingestion topic]
+        SR[Schema Registry:8081]
+    end
     
-    Worker[Stream Processor / Worker<br/>Port 8001<br/>- Async consumer<br/>- Batch writes to DB]
+    subgraph processing["Processing Layer"]
+        WORKER[Worker Service:8001Async Consumer]
+    end
     
-    DB[TimescaleDB<br/>Port 5432<br/>- Hypertables chunked<br/>- Continuous Aggregates<br/>- Retention Policies]
+    subgraph storage["Storage Layer"]
+        TS[(TimescaleDB:5432━━━━━━━━ Hypertables Continuous Aggregates Retention Policies)]
+        REDIS[(Redis:6379Query Cache)]
+    end
+    
+    subgraph monitoring["Monitoring Stack"]
+        PROM[Prometheus:9090]
+    end
 
-    %% Define Connections
-    LoadGen --> API
-    API --> Kafka
-    Kafka --> Worker
-    Worker --> DB
-    
-    %% Optional: Styling for a cleaner look
-    style LoadGen fill:#f9f,stroke:#333,stroke-width:2px
-    style DB fill:#bbf,stroke:#333,stroke-width:2px
+    LG -->|HTTP POST/metrics| API
+    API -->|Avro Events| KAFKA
+    API -.->|Schema Validation| SR
+    KAFKA -->|Consume| WORKER
+    WORKER -->|Batch INSERT100 rows| TS
+    WORKER -->|Metrics Endpoint/metrics| PROM
+    TS -.->|Future:Hot Queries| REDIS
+
+    style LG fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    style API fill:#fff3e0,stroke:#f57c00,stroke-width:3px
+    style KAFKA fill:#fce4ec,stroke:#c2185b,stroke-width:3px
+    style SR fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    style WORKER fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
+    style TS fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
+    style REDIS fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style PROM fill:#ffebee,stroke:#d32f2f,stroke-width:2px
 ```
 
 ---
