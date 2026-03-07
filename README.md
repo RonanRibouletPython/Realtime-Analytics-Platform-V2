@@ -8,32 +8,27 @@ A distributed high-performance, multi-tenant analytics platform capable of inges
 ## Current Architecture
 
 ```mermaid
-Load Generator (10 events/sec)
-    ↓
-┌──────────────────────────────┐
-│  FastAPI Ingestion Service   │  Port 8000
-│  - Schema validation         │
-│  - Avro serialization        │
-└──────────────────────────────┘
-    ↓
-┌──────────────────────────────┐
-│  Apache Kafka + Schema Reg   │  Ports 9092, 8081
-│  - Topic: metrics_ingestion  │
-│  - 3 partitions              │
-└──────────────────────────────┘
-    ↓
-┌──────────────────────────────┐
-│  Stream Processor (Worker)   │  Port 8001
-│  - Async consumer            │
-│  - Batch writes to DB        │
-└──────────────────────────────┘
-    ↓
-┌──────────────────────────────┐
-│  TimescaleDB                 │  Port 5432
-│  - Hypertables (chunked)     │
-│  - Continuous Aggregates     │
-│  - Retention Policies        │
-└──────────────────────────────┘
+graph TD
+    %% Define Nodes
+    LoadGen[Load Generator<br/>10 events/sec]
+    
+    API[FastAPI Ingestion Service<br/>Port 8000<br/>- Schema validation<br/>- Avro serialization]
+    
+    Kafka[Apache Kafka + Schema Reg<br/>Ports 9092, 8081<br/>- Topic: metrics_ingestion<br/>- 3 partitions]
+    
+    Worker[Stream Processor / Worker<br/>Port 8001<br/>- Async consumer<br/>- Batch writes to DB]
+    
+    DB[TimescaleDB<br/>Port 5432<br/>- Hypertables chunked<br/>- Continuous Aggregates<br/>- Retention Policies]
+
+    %% Define Connections
+    LoadGen --> API
+    API --> Kafka
+    Kafka --> Worker
+    Worker --> DB
+    
+    %% Optional: Styling for a cleaner look
+    style LoadGen fill:#f9f,stroke:#333,stroke-width:2px
+    style DB fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ---
