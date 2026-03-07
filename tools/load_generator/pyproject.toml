@@ -1,0 +1,15 @@
+[project]
+name = "load-generator"
+version = "0.1.0"
+description = "Load Generator for Real-Time Analytics Platform"
+requires-python = ">=3.12"
+dependencies = ["httpx>=0.27.0", "rich>=13.7.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# This section is required because your code is a script 
+# sitting in the root of the folder, not in a 'src' directory.
+[tool.hatch.build.targets.wheel]
+packages = ["."]
