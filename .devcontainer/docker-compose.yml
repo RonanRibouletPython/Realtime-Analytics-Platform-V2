@@ -32,16 +32,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      schema-registry:
-        condition: service_healthy
-      kafka-ui:
-        condition: service_healthy
-      prometheus:
-        condition: service_healthy
+      # redis:
+      #   condition: service_healthy
+      # kafka:
+      #   condition: service_healthy
+      # schema-registry:
+      #   condition: service_healthy
+      # kafka-ui:
+      #   condition: service_healthy
+      # prometheus:
+      #   condition: service_healthy
       
 
   # TimescaleDB
