@@ -27,7 +27,7 @@ graph TB
     end
     
     subgraph storage["Storage Layer"]
-        TS[(TimescaleDB:5432━━━━━━━━ Hypertables Continuous Aggregates Retention Policies)]
+        TS[(TimescaleDB:5432HypertablesContinuous AggregatesRetention Policies)]
         REDIS[(Redis:6379Query Cache)]
     end
     
@@ -35,22 +35,13 @@ graph TB
         PROM[Prometheus:9090]
     end
 
-    LG -->|HTTP POST/metrics| API
+    LG -->|HTTP POST /metrics| API
     API -->|Avro Events| KAFKA
     API -.->|Schema Validation| SR
     KAFKA -->|Consume| WORKER
-    WORKER -->|Batch INSERT100 rows| TS
-    WORKER -->|Metrics Endpoint/metrics| PROM
-    TS -.->|Future:Hot Queries| REDIS
-
-    style LG fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
-    style API fill:#fff3e0,stroke:#f57c00,stroke-width:3px
-    style KAFKA fill:#fce4ec,stroke:#c2185b,stroke-width:3px
-    style SR fill:#fce4ec,stroke:#c2185b,stroke-width:2px
-    style WORKER fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
-    style TS fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
-    style REDIS fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    style PROM fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    WORKER -->|Batch INSERT 100 rows| TS
+    WORKER -->|Metrics Endpoint /metrics| PROM
+    TS -.->|Future: Hot Queries| REDIS
 ```
 
 ---
