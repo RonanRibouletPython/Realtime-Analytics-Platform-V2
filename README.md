@@ -14,21 +14,21 @@ graph TB
     end
     
     subgraph ingestion["Ingestion Layer"]
-        API[FastAPI Service: 8000Validation + Serialization]
+        API[FastAPI Service: 8000 Validation + Serialization]
     end
     
     subgraph messaging["Message Queue"]
-        KAFKA[Apache Kafka: 9092metrics_ingestion topic]
+        KAFKA[Apache Kafka: 9092 metrics_ingestion topic]
         SR[Schema Registry: 8081]
     end
     
     subgraph processing["Processing Layer"]
-        WORKER[Worker Service: 8001Async Consumer]
+        WORKER[Worker Service: 8001 Async Consumer]
     end
     
     subgraph storage["Storage Layer"]
         TS[(TimescaleDB: 5432 Hypertables Continuous Aggregates Retention Policies)]
-        REDIS[(Redis: 6379Query Cache)]
+        REDIS[(Redis: 6379 Query Cache)]
     end
     
     subgraph monitoring["Monitoring Stack"]
