@@ -92,6 +92,6 @@ Architecture Flow:
 4. Query Service (FastAPI) -> Reads TimescaleDB / Caches in Redis -> Returns to Client
 
 Current State & Progress:
-- Phase 1 (Foundation) & Phase 2 (Kafka Integration) are COMPLETED. The user has a working FastAPI ingestion service, an Async SQLAlchemy DB connection, Docker Compose with Postgres/Kafka/Redis, Kafka Producers/Consumers, and Schema Registry integrated.
-- CURRENT FOCUS - Phase 3 (Time-Series & Caching): The user is now working on enabling TimescaleDB hypertables, implementing continuous aggregations, adding Redis caching for the Query Service, and optimizing query performance.
+- Phase 1 (Foundation) & Phase 2 (Kafka Integration) & Phase 3 (Time-Series) are COMPLETED. The user has a working FastAPI ingestion service, an Async SQLAlchemy DB connection, Docker Compose with Postgres/Kafka/Redis, Kafka Producers/Consumers, Schema Registry integrated and TimescaleDB with continuous 1min and 1hr aggregations.
+- CURRENT FOCUS - Phase 4 (Query Service API): The user is now working on Rest API for metric queries, smart granularity selection (1min vs 1hr vs raw), Redis caching, pagination logic and query validation.
 </project_context>
