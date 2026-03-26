@@ -1,0 +1,26 @@
+[project]
+name = "query-service"
+version = "0.1.0"
+description = "Query Service for Real-Time Analytics Platform"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "redis>=5.2.0",
+    "pydantic>=2.10.3",
+    "pydantic-settings>=2.6.1",
+    "structlog>=24.4.0",
+    "prometheus-client>=0.21.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.4", "pytest-asyncio>=0.24.0", "httpx>=0.28.1"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+shared = { workspace = true }
