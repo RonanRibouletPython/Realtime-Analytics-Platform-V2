@@ -24,3 +24,6 @@ build-backend = "hatchling.build"
 
 [tool.uv.sources]
 shared = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
