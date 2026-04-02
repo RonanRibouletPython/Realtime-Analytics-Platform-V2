@@ -11,20 +11,20 @@ settings = get_settings()
 
 @pytest_asyncio.fixture(autouse=True)
 async def clear_redis():
-    """Decisively reset Redis connections for each test loop."""
-    # 1. Force the global client to use a fresh pool for THIS test's event loop
+    """Decisively reset Redis connections for each test loop"""
+    # Force the global client to use a fresh pool for this test's event loop
     new_pool = ConnectionPool.from_url(
         str(settings.redis_url), max_connections=5, decode_responses=True
     )
     old_pool = redis_client.connection_pool
     redis_client.connection_pool = new_pool
 
-    # 2. Cleanup
+    # Cleanup
     await redis_client.flushdb()
     yield
     await redis_client.flushdb()
 
-    # 3. Shutdown this pool so it doesn't leak into the next test
+    # Shutdown this pool so it doesn't leak into the next test
     await new_pool.disconnect()
     await old_pool.disconnect()
 
@@ -52,7 +52,7 @@ async def test_redis_set_and_get():
 
 @pytest.mark.asyncio
 async def test_redis_cache_miss():
-    """Verify a missing key safely returns None"""
+    """Verify that a missing key safely returns None"""
     cached_data = await get_cached_query("non_existent_key")
     assert cached_data is None
 

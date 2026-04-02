@@ -12,6 +12,7 @@ settings = get_settings()
 
 # Prometheus metrics
 # Defined at module level → registered once on import → process-global singletons
+# It is recommended to use process-global singletons for Prometheus metrics to avoid duplicate registration issues
 DB_QUERY_DURATION = Histogram(
     "db_query_duration_seconds", "Time spent executing database queries", ["operation"]
 )
@@ -26,8 +27,14 @@ engine = create_async_engine(
     max_overflow=settings.database_max_overflow,
     pool_timeout=settings.database_pool_timeout,
     pool_recycle=settings.database_pool_recycle,
-    pool_pre_ping=True,  # Checks if connection is alive before using it
+    pool_pre_ping=True,  # Checks if connection is alive before using it to avoid stale connections
     echo=settings.log_level == "DEBUG",
+    connect_args={
+        "command_timeout": 60,  # Kill queries after 60 seconds
+        "server_settings": {
+            "application_name": "query-service",  # Shows up in pg_stat_activity
+        },
+    },  # This will prevent runaway queries
 )
 
 # Session factory with context manager

@@ -64,3 +64,15 @@ async def set_cached_query(key: str, data: dict[str, Any], ttl: int) -> None:
         logger.error("redis_set_error", error=str(e), key=key)
         # Graceful degradation: ignore the error, move on
         pass
+
+
+def generate_cache_key(
+    tenant_id: str, metric_name: str, start: str, end: str, granularity: str
+) -> str:
+    """
+    Generate consistent cache keys.
+
+    Format: {version}:metrics:{tenant}:{metric}:{start}:{end}:{granularity}
+    Example: v1:metrics:acme:cpu_usage:2026-03-05T14:00:2026-03-06T14:00:1h
+    """
+    return f"{settings.cache_version}:metrics:{tenant_id}:{metric_name}:{start}:{end}:{granularity}"

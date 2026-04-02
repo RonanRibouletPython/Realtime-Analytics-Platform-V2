@@ -2,7 +2,7 @@ from app.core.settings import get_settings
 
 
 def test_settings_loads():
-    """Verify settings load with defaults."""
+    """Verify settings load with defaults"""
     settings = get_settings()
 
     assert settings.service_name == "query-service"
@@ -14,7 +14,7 @@ def test_settings_loads():
 
 
 def test_connection_pool_math():
-    """Verify connection pool calculations."""
+    """Verify connection pool calculations are correct"""
     settings = get_settings()
 
     max_connections = settings.database_pool_size + settings.database_max_overflow
@@ -22,7 +22,7 @@ def test_connection_pool_math():
 
 
 def test_cache_ttl_logic():
-    """Verify cache TTL matches aggregate refresh intervals."""
+    """Verify cache TTL matches aggregate refresh intervals"""
     settings = get_settings()
 
     # 1-min aggregate refreshes every 60s → cache for 120s (2x safety margin)
@@ -36,7 +36,7 @@ def test_cache_ttl_logic():
 
 
 def test_granularity_thresholds():
-    """Verify auto-granularity selection makes sense."""
+    """Verify auto-granularity selection makes sense"""
     settings = get_settings()
 
     # Use 1-min aggregate for queries under 7 days (168 hours)
