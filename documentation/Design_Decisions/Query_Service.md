@@ -38,3 +38,10 @@
 * Instead of waiting for exactly the TTL, the code flips a weighted coin starting at TTL - 1min
 * One client gets a "cache miss" early, recalculates the data, and updates the cache before it actually expires, saving the other 49 users from hitting the DB
 
+# Coupling Business Logic with Schema validation (Pydantic)
+* Usually Models are only used to validate the shape of the data
+* But Pydantic integrates seemlessly with FastAPI allowing us to reject bad queries before it reaches the controller code
+
+# Handling Datetime Validation
+* Python's datetime manipulation is a bit slow
+* Pydantic's datetime validation overhead might become a bottleneck
