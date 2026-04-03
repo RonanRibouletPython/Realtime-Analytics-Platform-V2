@@ -9,7 +9,7 @@ from app.core.settings import get_settings
 from app.models.query_router import QueryPlan, QueryRequest
 
 # Type alias for granularity options
-Granularity = Literal["raw", "1min", "1hour"]
+Granularity = Literal["raw", "1m", "1h", "auto"]
 
 logger = structlog.get_logger(__name__)
 settings = get_settings()
@@ -61,9 +61,9 @@ def select_granularity(
     time_range_hours = time_range.total_seconds() / 3600
 
     if time_range_hours <= settings.granularity_threshold_1min_hours:
-        selected = "1min"
+        selected = "1m"
     else:
-        selected = "1hour"
+        selected = "1h"
 
     logger.info(
         "granularity_auto_selected",
@@ -96,7 +96,7 @@ def estimate_query_cost(time_range: td, granularity: Granularity) -> int:
     if granularity == "raw":
         # Pessimistic: assume 1 event per second
         estimated = total_seconds
-    elif granularity == "1min":
+    elif granularity == "1m":
         # 1 row per minute
         estimated = total_seconds // 60
     else:  # 1hour
@@ -127,7 +127,7 @@ def get_cache_ttl(granularity: Granularity, end_time: dt) -> int:
         return settings.cache_ttl_historical
 
     # Medium-age data → granularity-based TTL
-    if granularity == "1hour":
+    if granularity == "1h":
         return settings.cache_ttl_1hour
     else:
         return settings.cache_ttl_1min
@@ -135,7 +135,7 @@ def get_cache_ttl(granularity: Granularity, end_time: dt) -> int:
 
 def generate_cache_key(
     tenant_id: str,
-    metric_name: str,
+    name: str,
     start: dt,
     end: dt,
     granularity: Granularity,
@@ -146,7 +146,7 @@ def generate_cache_key(
     Format: {version}:metrics:{tenant}:{metric}:{start_iso}:{end_iso}:{granularity}
 
     Example:
-        v1:metrics:acme:cpu_usage:2026-03-05T14:00:00Z:2026-03-06T14:00:00Z:1hour
+        v1:metrics:acme:cpu_usage:2026-03-05T14:00:00Z:2026-03-06T14:00:00Z:1h
 
     Why ISO format?
     - Sortable
@@ -156,7 +156,7 @@ def generate_cache_key(
     start_iso = start.strftime("%Y-%m-%dT%H:%M:%SZ")
     end_iso = end.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    return f"{settings.cache_version}:metrics:{tenant_id}:{metric_name}:{start_iso}:{end_iso}:{granularity}"
+    return f"{settings.cache_version}:metrics:{tenant_id}:{name}:{start_iso}:{end_iso}:{granularity}"
 
 
 def create_query_plan(request: QueryRequest) -> QueryPlan:
@@ -192,12 +192,12 @@ def create_query_plan(request: QueryRequest) -> QueryPlan:
         raise ValueError(
             f"Query too expensive. Estimated rows: {estimated_rows:,} "
             f"(max: {settings.max_estimated_rows:,}). "
-            f"Try a smaller time range or use 'granularity=1hour'"
+            f"Try a smaller time range or use 'granularity=1h'"
         )
 
     # Generate cache key
     cache_key = generate_cache_key(
-        request.tenant_id, request.metric_name, rounded_start, rounded_end, granularity
+        request.tenant_id, request.name, rounded_start, rounded_end, granularity
     )
 
     # Determine cache TTL
@@ -206,7 +206,7 @@ def create_query_plan(request: QueryRequest) -> QueryPlan:
     logger.info(
         "query_plan_created",
         tenant_id=request.tenant_id,
-        metric_name=request.metric_name,
+        name=request.name,
         granularity=granularity,
         estimated_rows=estimated_rows,
         cache_ttl=cache_ttl,
@@ -215,7 +215,7 @@ def create_query_plan(request: QueryRequest) -> QueryPlan:
 
     return QueryPlan(
         tenant_id=request.tenant_id,
-        metric_name=request.metric_name,
+        name=request.name,
         start_time=request.start_time,
         end_time=request.end_time,
         granularity=granularity,

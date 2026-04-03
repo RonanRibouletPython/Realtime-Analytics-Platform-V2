@@ -15,7 +15,7 @@ class MetricQueryRequest(BaseModel):
     """
 
     tenant_id: str = Field(..., description="Tenant ID for data isolation")
-    metric_name: str = Field(..., description="Name of the metric to query")
+    name: str = Field(..., description="Name of the metric to query")
     start_time: datetime = Field(..., description="Start of time range")
     end_time: datetime = Field(..., description="End of time range")
 
@@ -67,6 +67,6 @@ class MetricQueryResponse(BaseModel):
     """Standardized response schema for the API"""
 
     tenant_id: str
-    metric_name: str
+    name: str
     granularity: str
     data: list[DataPoint]

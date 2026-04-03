@@ -8,7 +8,7 @@ from app.core.settings import get_settings
 from pydantic import BaseModel, Field, field_validator
 
 # Type alias for granularity options
-Granularity = Literal["raw", "1min", "1hour"]
+Granularity = Literal["raw", "1m", "1h", "auto"]
 
 logger = structlog.get_logger(__name__)
 settings = get_settings()
@@ -19,17 +19,17 @@ class QueryRequest(BaseModel):
     Validated query request from API endpoint
 
     Pydantic enforces:
-    - Required fields (tenant_id, metric_name)
+    - Required fields (tenant_id, name)
     - Valid datetime formats
     - Time range constraints
     """
 
     tenant_id: str = Field(..., min_length=1, max_length=64)
-    metric_name: str = Field(..., min_length=1, max_length=255)
+    name: str = Field(..., min_length=1, max_length=255)
     start_time: dt
     end_time: dt
     granularity: Granularity | None = Field(
-        default=None, description="Override auto-selection (raw, 1min, 1hour)"
+        default=None, description="Override auto-selection (raw, 1m, 1h)"
     )
 
     @field_validator("start_time", "end_time")
@@ -84,7 +84,7 @@ class QueryPlan(BaseModel):
     """
 
     tenant_id: str
-    metric_name: str
+    name: str
     start_time: dt
     end_time: dt
     granularity: Granularity

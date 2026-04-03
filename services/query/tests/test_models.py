@@ -17,7 +17,7 @@ def test_smart_granularity_auto_routing():
     # Short range: 2 days (less than 7-day threshold)
     short_req = MetricQueryRequest(
         tenant_id="tenant_1",
-        metric_name="cpu_usage",
+        name="cpu_usage",
         start_time=now - td(days=2),
         end_time=now,
     )
@@ -26,7 +26,7 @@ def test_smart_granularity_auto_routing():
     # Long range: 10 days (greater than 7-day threshold)
     long_req = MetricQueryRequest(
         tenant_id="tenant_1",
-        metric_name="cpu_usage",
+        name="cpu_usage",
         start_time=now - td(days=10),
         end_time=now,
     )
@@ -41,7 +41,7 @@ def test_naive_datetime_conversion():
 
     req = MetricQueryRequest(
         tenant_id="tenant_1",
-        metric_name="cpu_usage",
+        name="cpu_usage",
         start_time=naive_start,
         end_time=naive_end,
     )
@@ -58,7 +58,7 @@ def test_database_protection_limits():
     with pytest.raises(ValidationError) as exc_info:
         MetricQueryRequest(
             tenant_id="tenant_1",
-            metric_name="cpu_usage",
+            name="cpu_usage",
             start_time=now - td(days=40),  # settings max is 30
             end_time=now,
         )

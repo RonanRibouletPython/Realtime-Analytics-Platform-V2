@@ -27,29 +27,29 @@ def test_granularity_selection():
     """Verify auto-granularity selection based on time range"""
     # 6 hours → should use 1-min aggregate
     short_range = timedelta(hours=6)
-    assert select_granularity(short_range) == "1min"
+    assert select_granularity(short_range) == "1m"
 
     # 3 days → should use 1-min aggregate (under 7-day threshold)
     medium_range = timedelta(days=3)
-    assert select_granularity(medium_range) == "1min"
+    assert select_granularity(medium_range) == "1m"
 
     # 10 days → should use 1-hour aggregate (over 7-day threshold)
     long_range = timedelta(days=10)
-    assert select_granularity(long_range) == "1hour"
+    assert select_granularity(long_range) == "1h"
 
     # Override: force 1-hour even for short range
-    override = select_granularity(short_range, override="1hour")
-    assert override == "1hour"
+    override = select_granularity(short_range, override="1h")
+    assert override == "1h"
 
 
 def test_cost_estimation():
     """Verify query cost estimation"""
     # 1 hour of 1-min data = 60 rows
-    cost_1min = estimate_query_cost(timedelta(hours=1), "1min")
+    cost_1min = estimate_query_cost(timedelta(hours=1), "1m")
     assert cost_1min == 60
 
     # 24 hours of 1-hour data = 24 rows
-    cost_1hour = estimate_query_cost(timedelta(hours=24), "1hour")
+    cost_1hour = estimate_query_cost(timedelta(hours=24), "1h")
     assert cost_1hour == 24
 
     # 1 hour of raw data = 3600 rows (pessimistic: 1 event/sec)
@@ -65,7 +65,7 @@ def test_query_validation_rejects_invalid_ranges():
     with pytest.raises(ValueError, match="end_time must be after start_time"):
         QueryRequest(
             tenant_id="test",
-            metric_name="cpu",
+            name="cpu",
             start_time=now,
             end_time=now - timedelta(hours=1),  # End before start!
         )
@@ -74,7 +74,7 @@ def test_query_validation_rejects_invalid_ranges():
     with pytest.raises(ValueError, match="Time range exceeds maximum"):
         QueryRequest(
             tenant_id="test",
-            metric_name="cpu",
+            name="cpu",
             start_time=now - timedelta(days=31),
             end_time=now,
         )
@@ -83,7 +83,7 @@ def test_query_validation_rejects_invalid_ranges():
     with pytest.raises(ValueError, match="Time range too small"):
         QueryRequest(
             tenant_id="test",
-            metric_name="cpu",
+            name="cpu",
             start_time=now - timedelta(seconds=30),
             end_time=now,
         )
@@ -95,13 +95,13 @@ def test_query_plan_creation():
     start = now - timedelta(hours=24)
 
     request = QueryRequest(
-        tenant_id="acme", metric_name="cpu_usage", start_time=start, end_time=now
+        tenant_id="acme", name="cpu_usage", start_time=start, end_time=now
     )
 
     plan = create_query_plan(request)
 
     # Should auto-select 1-min (24 hours < 7 days)
-    assert plan.granularity == "1min"
+    assert plan.granularity == "1m"
 
     # Should round timestamps to 5-minute boundaries
     assert plan.rounded_start.minute % 5 == 0
@@ -110,7 +110,7 @@ def test_query_plan_creation():
     # Should generate cache key
     assert "acme" in plan.cache_key
     assert "cpu_usage" in plan.cache_key
-    assert "1min" in plan.cache_key
+    assert "1m" in plan.cache_key
 
     # Should estimate ~1440 rows (24 hours × 60 minutes)
     assert plan.estimated_rows == 1440
@@ -124,7 +124,7 @@ def test_expensive_query_rejected():
     # 30 days of raw data = 30 × 86400 = 2,592,000 rows
     request = QueryRequest(
         tenant_id="test",
-        metric_name="cpu",
+        name="cpu",
         start_time=now - timedelta(days=30),
         end_time=now,
         granularity="raw",  # Force raw (expensive!)
