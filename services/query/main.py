@@ -1,14 +1,16 @@
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from prometheus_client import make_asgi_app
-
 from app.api.endpoints import router as api_router
 from app.core.cache import redis_client
 from app.core.database import engine
 from app.core.settings import get_settings
+from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from prometheus_client import make_asgi_app
+from pydantic import ValidationError
 
 logger = structlog.get_logger(__name__)
 settings = get_settings()
@@ -35,6 +37,22 @@ app = FastAPI(
     title=settings.service_name,
     lifespan=lifespan,
 )
+
+
+# Glogbal Exception Handler
+@app.exception_handler(ValidationError)
+async def pydantic_validation_exception_handler(request: Request, exc: ValidationError):
+    """
+    Catches pure Pydantic ValidationErrors (often raised inside Depends())
+    and translates them into standard HTTP 422 responses instead of 500s
+    """
+    errors = exc.errors()
+    logger.warning("api_validation_error", errors=exc.errors(), url=str(request.url))
+    return JSONResponse(
+        status_code=422,
+        content={"detail": jsonable_encoder(errors)},
+    )
+
 
 # CORS Middleware for Frontend Dashboards
 app.add_middleware(
