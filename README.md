@@ -108,20 +108,20 @@ graph TB
 - [ ] **5.2** — TimescaleDB Compression (10x storage reduction) + Storage Monitoring
 
 ### Phase 6: Lean Observability
-- [ ] **6.1** — Grafana Dashboards (ingestion throughput, query latency, storage)
-- [ ] **6.2** — Prometheus alerting rule (anomaly precursor signal)
+- [ ] **6.1**: Grafana Dashboards (ingestion throughput, query latency, storage)
+- [ ] **6.2**: Prometheus alerting rule (anomaly precursor signal)
 
 ### Phase 7: AI Capstone — Real-Time Anomaly Detection
 > *Implements Andrew Ng's CS229 Gaussian density estimation directly inside the Kafka consumer stream.*
 
-- [ ] **7.1** — Statistical baseline: Rolling Z-Score detector on the stream
-- [ ] **7.2** — CS229 from scratch: Gaussian density estimation (µ, σ², ε threshold)
+- [ ] **7.1**: Statistical baseline: Rolling Z-Score detector on the stream
+- [ ] **7.2**: CS229 from scratch: Gaussian density estimation (µ, σ², ε threshold) (TBD)
   ```
   p(x) = ∏ [ 1/(√2π·σⱼ) · exp(-(xⱼ - µⱼ)² / 2σⱼ²) ]
   Flag as anomaly when p(x) < ε
   ```
-- [ ] **7.3** — `river` online learning — model parameters update *with* the stream
-- [ ] **7.4** — Anomaly events → dedicated `anomaly_events` Kafka topic → Grafana alert panel
+- [ ] **7.3**: `river` online learning, model parameters update *with* the stream
+- [ ] **7.4**: Anomaly events → dedicated `anomaly_events` Kafka topic → Grafana alert panel
 
 ---
 
