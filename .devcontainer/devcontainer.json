@@ -1,8 +1,11 @@
 {
-  "name": "Realtime Analytics Platform",
+  "name": "Realtime Analytics Platform with OpenCode",
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
+  "containerEnv": {
+    "LLAMA_BASE_URL": "http://host.docker.internal:11434/v1"
+  },
   "customizations": {
     "vscode": {
       "extensions": [

@@ -6,8 +6,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \   
     redis-tools \         
     tree \                
-    lsof \                
+    lsof \  
+    jq \              
     && rm -rf /var/lib/apt/lists/*
+
+# Node.js (required by OpenCode)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install OpenCode
+RUN npm install -g opencode-ai
+
+# Verify OpenCode installation
+RUN opencode --version
 
 # Package manager
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh

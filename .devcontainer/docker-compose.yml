@@ -29,6 +29,7 @@ services:
       - REDIS_URL=redis://localhost:6379/0
       - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
       - SCHEMA_REGISTRY_URL=http://localhost:8081
+      - LLAMA_BASE_URL=http://host.docker.internal:${LLAMA_PORT:-11434}/v1
     depends_on:
       db:
         condition: service_healthy
@@ -74,6 +75,8 @@ services:
       - "8000:8000"   # Ingestion Service
       - "8001:8001"   # Worker (Prometheus metrics)
       - "8002:8002"   # Query Service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # Redis
   redis:
