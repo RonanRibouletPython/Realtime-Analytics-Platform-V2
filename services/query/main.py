@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import make_asgi_app
 from pydantic import ValidationError
+from rate_limit.middleware import RateLimitMiddleware
 
 logger = structlog.get_logger(__name__)
 settings = get_settings()
@@ -62,6 +63,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Rate Limiting Middleware
+app.add_middleware(RateLimitMiddleware)
 
 # Expose Prometheus Metrics (Hits, Errors, Query Durations)
 metrics_app = make_asgi_app()
