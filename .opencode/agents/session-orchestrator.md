@@ -39,6 +39,14 @@ The schema is strictly:
   "blocked_reason": "<string or null — set when step_status is blocked>",
   "session_log":[
     { "timestamp": "<ISO-8601>", "event": "<string>", "agent": "<string>" }
+  ],
+  "phase_steps": [
+    {
+      "slug": "<step-slug>",
+      "description": "<human-readable description>",
+      "reviewers": ["Strict", "QA", ...],
+      "status": "pending | in_progress | completed"
+    }
   ]
 }
 ```
@@ -50,6 +58,12 @@ On every invocation you MUST:
 3. Write the updated file back before doing anything else.
 4. Write atomically: write to `.opencode/phase_state.json.tmp`, then rename.
    Never leave a partial write.
+
+**Future Session Planning:**
+The `phase_steps` array defines all micro-steps for the current phase. When starting a new session:
+1. Read the current phase_state.json to see which steps remainpending
+2. Display the remaining steps to the user so they can choose what to tackle
+3. Update `current_step` to the chosen step slug before routing to Mentor
 </state_contract>
 
 <phase_step_registry>
