@@ -52,7 +52,7 @@ def extract_request_identifier(request: Request) -> RequestIdentifier:
 
     Priority:
     1. X-Tenant-ID header
-    2. API key from Authorization header
+    2. tenant_id query parameter
     3. Client IP fallback
 
     Args:
@@ -61,8 +61,8 @@ def extract_request_identifier(request: Request) -> RequestIdentifier:
     Returns:
         RequestIdentifier with tenant_id, client_id, endpoint
     """
-    # Extract tenant ID
-    tenant_id = request.headers.get("X-Tenant-ID", "default")
+    # Extract tenant ID: header → query param → default
+    tenant_id = request.headers.get("X-Tenant-ID") or request.query_params.get("tenant_id", "default")
 
     # Extract client ID (priority: API key, then IP)
     auth_header = request.headers.get("Authorization", "")

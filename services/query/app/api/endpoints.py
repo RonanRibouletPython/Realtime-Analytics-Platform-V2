@@ -1,5 +1,5 @@
 import structlog
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import get_cached_query, set_cached_query
@@ -16,6 +16,7 @@ router = APIRouter()
 async def execute_metric_query(
     request: QueryRequest = Depends(),  # Tells FastAPI to read these fields from the URL Query Parameters
     session: AsyncSession = Depends(get_db_session),
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
 ):
     """
     RESTful GET endpoint for fetching metrics
