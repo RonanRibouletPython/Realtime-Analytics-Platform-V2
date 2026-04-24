@@ -35,7 +35,7 @@ RUN opencode --version && \
 USER vscode
 
 # Setup AFT
-RUN bunx --bun @cortexkit/aft-opencode@latest setup
+RUN bunx --bun @cortexkit/aft setup
 
 WORKDIR /workspace
 CMD ["sleep", "infinity"]
