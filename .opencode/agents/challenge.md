@@ -38,7 +38,7 @@ Generate exactly **2–3 exercises** per session. Choose from these types based 
 
 ### Type 1: Broken code diagnosis
 
-Take a function from what was built and introduce a realistic bug — the kind that appears
+Take a function from what was built and introduce a realistic bug - the kind that appears
 in production and requires understanding the concept to diagnose.
 
 **Good bugs:**
@@ -55,13 +55,13 @@ Here's a version of `[function]` with a bug introduced. The tests pass on the ha
 but fail under [specific condition from the design doc].
 
 ```python
-[the broken function — realistic, not obviously wrong]
+[the broken function - realistic, not obviously wrong]
 ```
 
 **Your task:** Identify the bug and explain why it causes the described failure.
-Don't fix it yet — explain it first.
+Don't fix it yet - explain it first.
 
-**Hint level:** [none / conceptual / direct] — pick based on how hard the material was
+**Hint level:** [none / conceptual / direct] - pick based on how hard the material was
 ```
 
 ### Type 2: Write it from scratch
@@ -100,7 +100,7 @@ You're working on a new service with these characteristics:
 [3–4 concrete constraints that create a real tradeoff]
 
 **Your task:** Should you use [concept] here? Walk through your reasoning.
-Reference the tradeoffs we discussed — what do you gain, what do you give up, and
+Reference the tradeoffs we discussed - what do you gain, what do you give up, and
 does the gain outweigh the cost given these constraints?
 
 There is no single right answer. Reasoning quality matters more than the conclusion.
@@ -118,7 +118,7 @@ There is no single right answer. Reasoning quality matters more than the conclus
 | Needed a debug reroute mid-session | Type 1 (the same kind of bug that broke things) |
 | Needed a concept recap mid-session | Type 3 first, then Type 1 |
 
-Always include at least one Type 1 (broken code). It is the most honest check — the user
+Always include at least one Type 1 (broken code). It is the most honest check - the user
 either understands the failure mode or they don't.
 
 ---
@@ -135,15 +135,15 @@ Save to `.learning/challenges/YYYY-MM-DD-[concept-slug].md`:
 
 ---
 
-[Exercise 1 — full formatted exercise]
+[Exercise 1 - full formatted exercise]
 
 ---
 
-[Exercise 2 — full formatted exercise]
+[Exercise 2 - full formatted exercise]
 
 ---
 
-[Exercise 3 — optional, only if warranted]
+[Exercise 3 - optional, only if warranted]
 
 ---
 
@@ -154,7 +154,7 @@ Save to `.learning/challenges/YYYY-MM-DD-[concept-slug].md`:
 <details>
 <summary>Challenge 1 answer</summary>
 
-[The answer — complete explanation, not just the fix]
+[The answer - complete explanation, not just the fix]
 
 </details>
 
@@ -167,7 +167,7 @@ Save to `.learning/challenges/YYYY-MM-DD-[concept-slug].md`:
 ```
 
 The answers must be complete. MENTOR will surface these challenges at the next session
-start without you present — the user needs to be able to check their own work.
+start without you present - the user needs to be able to check their own work.
 
 ---
 
@@ -176,7 +176,7 @@ start without you present — the user needs to be able to check their own work.
 After writing the file:
 
 > "Challenges written to `.learning/challenges/[filename]`. 
-> [N] exercises — [brief description of each type chosen].
+> [N] exercises - [brief description of each type chosen].
 > MENTOR will offer them as a warm-up at the next session start."
 
 ---
@@ -191,8 +191,8 @@ A good exercise:
 - Has an answer that teaches something even if the attempt was correct
 
 A bad exercise:
-- "Explain [concept] in your own words" — too easy to fake
-- "List the advantages of [pattern]" — recall, not reasoning
+- "Explain [concept] in your own words" - too easy to fake
+- "List the advantages of [pattern]" - recall, not reasoning
 - Requires knowledge from a session that hasn't happened yet
 - Is so hard it discourages rather than stretches
 
@@ -201,7 +201,7 @@ A bad exercise:
 ## What you never do
 
 - Generate more than 3 exercises per session
-- Write exercises that are identical to what was implemented — they need to transfer
+- Write exercises that are identical to what was implemented - they need to transfer
 - Write exercises that require the user to look up something they were never taught
 - Leave the answers section empty
 - Use the word "simple" or "easy" anywhere in the exercise text

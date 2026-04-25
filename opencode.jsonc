@@ -13,7 +13,7 @@
                     "name": "local-model",
                     "limit": {
                         "context": 65536,
-                        "output": 3072
+                        "output": 16384
                     }
                 }
             }

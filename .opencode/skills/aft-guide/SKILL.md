@@ -8,7 +8,7 @@ compatibility: opencode
 ## What AFT Does
 
 AFT replaces the default read/write/edit tools with tree-sitter-aware versions.
-Every operation addresses code by what it *is* — a function, a class, a type — not by line number.
+Every operation addresses code by what it *is* - a function, a class, a type - not by line number.
 
 AFT is pre-installed in this devcontainer via:
 ```
@@ -21,7 +21,7 @@ bunx --bun @cortexkit/aft-opencode@latest setup
 
 ### Read and Inspect
 
-**`aft_outline`** — List all symbols in a file or directory. Use this first to orient.
+**`aft_outline`** - List all symbols in a file or directory. Use this first to orient.
 ```json
 { "filePath": "src/ingestion/consumer.py" }
 { "directory": "src/ingestion/" }
@@ -29,14 +29,14 @@ bunx --bun @cortexkit/aft-opencode@latest setup
 ```
 Returns: symbol names, kind (function/class/method), line range, visibility.
 
-**`aft_zoom`** — Read one specific function/class by name. ~40 tokens vs ~375 for a whole file.
+**`aft_zoom`** - Read one specific function/class by name. ~40 tokens vs ~375 for a whole file.
 ```json
 { "filePath": "src/ingestion/consumer.py", "symbol": "process_batch" }
 { "filePath": "src/ingestion/consumer.py", "symbols": ["KafkaConsumer", "process_batch"] }
 ```
 Returns: full source of the symbol with call-graph annotations (`calls_out`, `called_by`).
 
-**`read`** — AFT-enhanced file reading with line numbers. Paginate large files.
+**`read`** - AFT-enhanced file reading with line numbers. Paginate large files.
 ```json
 { "filePath": "src/ingestion/consumer.py" }
 { "filePath": "src/ingestion/consumer.py", "startLine": 50, "endLine": 100 }
@@ -44,7 +44,7 @@ Returns: full source of the symbol with call-graph annotations (`calls_out`, `ca
 
 ### Edit
 
-**`edit` (symbol mode)** — Edit a function by name. Line-number free. Robust to file changes.
+**`edit` (symbol mode)** - Edit a function by name. Line-number free. Robust to file changes.
 ```json
 {
   "filePath": "src/ingestion/consumer.py",
@@ -53,7 +53,7 @@ Returns: full source of the symbol with call-graph annotations (`calls_out`, `ca
 }
 ```
 
-**`edit` (find-replace mode)** — Exact string replacement with fuzzy fallback.
+**`edit` (find-replace mode)** - Exact string replacement with fuzzy fallback.
 ```json
 {
   "filePath": "src/config.py",
@@ -62,14 +62,14 @@ Returns: full source of the symbol with call-graph annotations (`calls_out`, `ca
 }
 ```
 
-**`write`** — Write a full new file. Creates directories. Auto-formats.
+**`write`** - Write a full new file. Creates directories. Auto-formats.
 ```json
 { "filePath": "src/tracing/middleware.py", "content": "..." }
 ```
 
 ### Navigate
 
-**`aft_navigate`** — Call graph and impact analysis.
+**`aft_navigate`** - Call graph and impact analysis.
 ```json
 { "op": "callers", "filePath": "src/...", "symbol": "process_batch", "depth": 2 }
 { "op": "call_tree", "filePath": "src/...", "symbol": "process_batch", "depth": 3 }
@@ -80,7 +80,7 @@ Use `impact` before changing a function signature. Use `callers` to find all usa
 
 ### Imports
 
-**`aft_import`** — Language-aware import management for Python, TypeScript, etc.
+**`aft_import`** - Language-aware import management for Python, TypeScript, etc.
 ```json
 { "op": "add", "filePath": "src/ingestion/consumer.py", "module": "opentelemetry.trace", "names": ["get_tracer"] }
 { "op": "organize", "filePath": "src/ingestion/consumer.py" }
@@ -88,7 +88,7 @@ Use `impact` before changing a function signature. Use `callers` to find all usa
 
 ### Safety
 
-**`aft_safety`** — Checkpoints and undo before risky changes.
+**`aft_safety`** - Checkpoints and undo before risky changes.
 ```json
 { "op": "checkpoint", "name": "before-tracing-integration" }
 { "op": "undo", "filePath": "src/ingestion/consumer.py" }
