@@ -104,14 +104,14 @@ graph TB
 
 ### Phase 5: Multi-Tenancy & Scaling ← CURRENT
 - [x] Tenant isolation
-- [ ] **5.1** — API Rate Limiting (sliding window, per-tenant) + Circuit Breaker
-- [ ] **5.2** — TimescaleDB Compression (10x storage reduction) + Storage Monitoring
+- [ ] **5.1** - API Rate Limiting (sliding window, per-tenant) + Circuit Breaker
+- [ ] **5.2** - TimescaleDB Compression (10x storage reduction) + Storage Monitoring
 
 ### Phase 6: Lean Observability
 - [ ] **6.1**: Grafana Dashboards (ingestion throughput, query latency, storage)
 - [ ] **6.2**: Prometheus alerting rule (anomaly precursor signal)
 
-### Phase 7: AI Capstone — Real-Time Anomaly Detection
+### Phase 7: AI Capstone - Real-Time Anomaly Detection
 > *Implements Andrew Ng's CS229 Gaussian density estimation directly inside the Kafka consumer stream.*
 
 - [ ] **7.1**: Statistical baseline: Rolling Z-Score detector on the stream
