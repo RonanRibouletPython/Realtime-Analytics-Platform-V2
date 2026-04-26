@@ -54,3 +54,30 @@
 
 ### Pending Challenges
 -
+## Session 2 - RedisStorage Deep Dive
+
+**Date:** 2026-04-26
+
+### Concepts Studied
+- Redis Lua scripts for atomic multi-step operations
+- Token bucket algorithm mechanics (refill calculation, consumption, reset time)
+- Fail-open vs fail-closed error handling
+- TTL calculation for auto-cleanup of abandoned buckets
+- InMemoryStorage as test double
+
+### What Was Completed
+- Understood how Lua scripts execute atomically in Redis
+- Traced the full flow of `check_and_consume` from Python → Lua → Python
+- Identified testing gaps: Lua script returns, `_calculate_ttl`, `get_current_tokens`, `reset_bucket`, edge cases
+- Designed hybrid test suite (mocked unit tests + integration tests)
+
+### Gaps Identified
+1. Full test suite not yet implemented
+2. Integration tests with real Redis not written
+
+### Prerequisites That Might Be Missing
+- None — all concepts understood through dialogue
+
+### Pending Challenges
+- None for this session
+

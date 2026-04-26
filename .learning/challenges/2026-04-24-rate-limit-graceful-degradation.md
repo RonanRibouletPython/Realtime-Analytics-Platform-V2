@@ -74,6 +74,24 @@ Without looking at what we built, implement the `_calculate_ttl` method from thi
 - [ ] Returns 60 when bucket_size is 1 and refill_interval is 6 (1 token/6sec = 6sec to fill, *1.5=9sec -> clamped to 60)
 - [ ] Returns 86400 when bucket_size is 1000 and refill_interval is 1 (1000 tokens/sec = 1sec to fill, *1.5=1.5sec -> clamped... wait, what's the actual calculation here?)
 
+def _calculate_ttl(bucket_size: int, refill_rate: float, refill_interval: int) -> int:
+
+    ttl: int = 0
+    buffer: float = 1.5 # 50% buffer
+    low_bound = 60 # 60 seconds
+    high_bound = 86400 # 24 hours
+
+    # Verify that refill_rate is positive (if not return default value)
+    if refill_rate <= 0:
+        return 300
+    
+    # Calculate the ttl with buffer
+    seconds_to_fill = (bucket_size / refill_rate) * refill_interval
+    ttl = seconds_to_fill * buffer
+
+    return max(low_bound, min(ttl, high_bound))
+    
+
 ---
 
 ## Challenge 3: Would you use fail-open here?
@@ -87,6 +105,19 @@ You're working on a payment processing service with these characteristics:
 **Your task:** Should you use fail-open for Redis errors in this payment service? Walk through your reasoning. Reference the tradeoffs we discussed — what do you gain, what do you give up, and does the gain outweigh the cost given these constraints?
 
 There is no single right answer. Reasoning quality matters more than the conclusion.
+
+Answer: 
+Fail-open = unprotected availability
+Fail-close = protected unavailability
+In this case we can have real financial harm potential (fraud, unbounded charges)
+Tradeoff is between availability and enforceability
+
+Senior answer:
+No rigid fail-close but hybrid approach preffered:
+1. Fail-open immediately: don't block payments during transient Redis blips
+2. Circuit breaker: after N consecutive failures, transition to fail-close
+3. Burn rate limit: even when Redis is down, enforce a hard cap (e.g., "max 100 requests/minute regardless")
+This gives mostly available with some protection
 
 ---
 
