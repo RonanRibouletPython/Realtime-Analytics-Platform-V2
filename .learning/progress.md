@@ -36,24 +36,6 @@
 
 ---
 
-## Session Template
-
-### Concepts Studied
-- [concept name]: [status]
-
-### What Was In Progress
-- [what was being worked on]
-
-### Gaps Identified
-1. 
-2. 
-3. 
-
-### Prerequisites That Might Be Missing
-- 
-
-### Pending Challenges
--
 ## Session 2 - RedisStorage Deep Dive
 
 **Date:** 2026-04-26
@@ -64,6 +46,7 @@
 - Fail-open vs fail-closed error handling
 - TTL calculation for auto-cleanup of abandoned buckets
 - InMemoryStorage as test double
+- Sliding window vs token bucket (concept clarification)
 
 ### What Was Completed
 - Understood how Lua scripts execute atomically in Redis
@@ -71,13 +54,34 @@
 - Identified testing gaps: Lua script returns, `_calculate_ttl`, `get_current_tokens`, `reset_bucket`, edge cases
 - Designed hybrid test suite (mocked unit tests + integration tests)
 
-### Gaps Identified
-1. Full test suite not yet implemented
-2. Integration tests with real Redis not written
+### Tests Implemented
+- `tests/test_calculate_ttl.py` — 13 tests covering boundary conditions, normal cases, edge cases, formula verification
+- `tests/test_get_current_tokens.py` — 8 tests covering happy path, bucket not found, Redis error handling (fail open)
+- `tests/test_reset_bucket.py` — 6 tests covering success path, correct mapping, error handling
+- Fixed pre-existing `test_default_tenant` in `tests/test_rate_limit_middleware.py`
+
+**Final Test Results:** 83 passed, 0 failed
+
+### Gaps Remaining
+1. **RedisStorage happy path** — normal operation with mocked Redis
+2. **Integration tests with real Redis** — Docker-based
 
 ### Prerequisites That Might Be Missing
 - None — all concepts understood through dialogue
 
 ### Pending Challenges
-- None for this session
+- [x] RedisStorage unit tests (TTL, get_current_tokens, reset_bucket)
+- [ ] RedisStorage happy path tests
+- [ ] Integration tests with real Redis
 
+---
+
+## Currently Studying
+- [Nothing in progress - session was complete]
+
+## Queued (Want to Learn Next)
+- RedisStorage happy path — because this is the core functionality needed before moving to integration tests
+- Integration tests with real Redis — because Docker-based tests validate the full stack
+
+## Known Gaps / Revisit
+- None flagged as still fuzzy from this session

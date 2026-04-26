@@ -45,6 +45,9 @@ class TestExtractRequestIdentifier:
         request.client = MagicMock()
         request.client.host = "192.168.1.1"
         request.url.path = "/api/query"
+        # Mock query_params.get to return the default "default" when key not found
+        request.query_params = MagicMock()
+        request.query_params.get = MagicMock(side_effect=lambda key, default: default)
 
         identifier = extract_request_identifier(request)
 
